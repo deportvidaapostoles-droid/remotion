@@ -2,6 +2,7 @@ import {loadFont} from '@remotion/fonts';
 import {
 	AbsoluteFill,
 	Easing,
+	Img,
 	interpolate,
 	Sequence,
 	spring,
@@ -20,10 +21,13 @@ loadFont({
 	weight: '100 900',
 });
 
-const CYAN = '#00F0FF';
-const MAGENTA = '#FF2BD6';
-const GOLD = '#FFC93C';
-const BG = '#07041A';
+// Deporvida brand colors, sampled from the logo
+const SKY = '#008FD3';
+const SKY_BRIGHT = '#2BB3F5';
+const DEEP = '#0E55A3';
+const RED = '#E83A33';
+const WHITE = '#FFFFFF';
+const BG = '#03102B';
 
 const SCENES = {
 	cyber: {from: 0, duration: 90},
@@ -48,13 +52,11 @@ const useSceneExit = (duration: number) => {
 const Background: React.FC = () => {
 	const frame = useCurrentFrame();
 	const gridOffset = (frame * 6) % 120;
-	const hue = interpolate(frame, [0, DURATION], [0, 40]);
 	return (
 		<AbsoluteFill style={{backgroundColor: BG, overflow: 'hidden'}}>
 			<AbsoluteFill
 				style={{
-					background: `radial-gradient(circle at 50% 30%, ${MAGENTA}55 0%, transparent 55%), radial-gradient(circle at 50% 85%, ${CYAN}44 0%, transparent 50%)`,
-					filter: `hue-rotate(${hue}deg)`,
+					background: `radial-gradient(circle at 50% 30%, ${DEEP}cc 0%, transparent 60%), radial-gradient(circle at 80% 10%, ${RED}33 0%, transparent 35%), radial-gradient(circle at 50% 85%, ${SKY}55 0%, transparent 50%)`,
 				}}
 			/>
 			{/* Perspective neon grid floor */}
@@ -67,7 +69,7 @@ const Background: React.FC = () => {
 					height: 900,
 					transform: 'perspective(500px) rotateX(55deg) scale(2.2)',
 					transformOrigin: '50% 100%',
-					backgroundImage: `linear-gradient(${CYAN}88 2px, transparent 2px), linear-gradient(90deg, ${CYAN}88 2px, transparent 2px)`,
+					backgroundImage: `linear-gradient(${SKY_BRIGHT}88 2px, transparent 2px), linear-gradient(90deg, ${SKY_BRIGHT}88 2px, transparent 2px)`,
 					backgroundSize: '120px 120px',
 					backgroundPosition: `0 ${gridOffset}px`,
 					WebkitMaskImage: 'linear-gradient(to top, black 30%, transparent 100%)',
@@ -105,7 +107,7 @@ const GlitchText: React.FC<{
 				style={{
 					...base,
 					position: 'absolute',
-					color: CYAN,
+					color: SKY_BRIGHT,
 					transform: `translateX(${-jitter}px)`,
 					opacity: glitch * 0.8,
 					mixBlendMode: 'screen',
@@ -117,7 +119,7 @@ const GlitchText: React.FC<{
 				style={{
 					...base,
 					position: 'absolute',
-					color: MAGENTA,
+					color: RED,
 					transform: `translateX(${jitter}px)`,
 					opacity: glitch * 0.8,
 					mixBlendMode: 'screen',
@@ -125,12 +127,29 @@ const GlitchText: React.FC<{
 			>
 				{text}
 			</div>
-			<div style={{...base, position: 'relative', color, textShadow: neon(color === '#FFFFFF' ? MAGENTA : color, 0.4)}}>
+			<div style={{...base, position: 'relative', color, textShadow: neon(color === WHITE ? SKY : color, 0.4)}}>
 				{text}
 			</div>
 		</div>
 	);
 };
+
+const LogoCard: React.FC<{width: number; style?: React.CSSProperties}> = ({
+	width,
+	style,
+}) => (
+	<div
+		style={{
+			backgroundColor: WHITE,
+			borderRadius: 28,
+			padding: '28px 44px',
+			boxShadow: `0 0 50px ${SKY}88`,
+			...style,
+		}}
+	>
+		<Img src={staticFile('logo.png')} style={{width, display: 'block'}} />
+	</div>
+);
 
 const CyberScene: React.FC = () => {
 	const frame = useCurrentFrame();
@@ -144,6 +163,14 @@ const CyberScene: React.FC = () => {
 	return (
 		<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', opacity: exit}}>
 			<AbsoluteFill style={{backgroundColor: 'white', opacity: flash}} />
+			<LogoCard
+				width={560}
+				style={{
+					marginBottom: 90,
+					opacity: interpolate(frame, [4, 16], [0, 1], clamp),
+					transform: `translateY(${interpolate(sub, [0, 1], [-80, 0])}px)`,
+				}}
+			/>
 			<div style={{transform: `scale(${interpolate(slam, [0, 1], [3, 1])})`, opacity: slam}}>
 				<GlitchText text="CYBER" size={330} color="#FFFFFF" glitch={glitch} />
 			</div>
@@ -154,7 +181,7 @@ const CyberScene: React.FC = () => {
 					opacity: sub,
 				}}
 			>
-				<GlitchText text="DEPORVIDA" size={190} color={MAGENTA} glitch={glitch * 0.6} />
+				<GlitchText text="DEPORVIDA" size={190} color={SKY_BRIGHT} glitch={glitch * 0.6} />
 			</div>
 			<div
 				style={{
@@ -163,8 +190,8 @@ const CyberScene: React.FC = () => {
 					fontWeight: 800,
 					fontSize: 46,
 					letterSpacing: 14,
-					color: CYAN,
-					textShadow: neon(CYAN, 0.4),
+					color: SKY_BRIGHT,
+					textShadow: neon(SKY_BRIGHT, 0.4),
 					opacity: interpolate(frame, [35, 50], [0, 1], clamp),
 				}}
 			>
@@ -207,9 +234,9 @@ const VipScene: React.FC = () => {
 					borderRadius: 40,
 					position: 'relative',
 					overflow: 'hidden',
-					background: `linear-gradient(135deg, #2A1650 0%, #120A2E 60%, #3A0F45 100%)`,
-					border: `5px solid ${GOLD}`,
-					boxShadow: `${neon(GOLD, 0.8)}, inset 0 0 60px ${GOLD}44`,
+					background: `linear-gradient(135deg, ${DEEP} 0%, #082A63 55%, ${SKY} 100%)`,
+					border: `5px solid ${WHITE}`,
+					boxShadow: `${neon(SKY_BRIGHT, 0.8)}, inset 0 0 60px ${WHITE}33`,
 					transform: `translateX(${interpolate(enter, [0, 1], [-1200, 0])}px) translateY(${float}px) rotate(${rotate}deg)`,
 					display: 'flex',
 					flexDirection: 'column',
@@ -229,7 +256,7 @@ const VipScene: React.FC = () => {
 							height: 90,
 							borderRadius: 45,
 							backgroundColor: BG,
-							border: `5px solid ${GOLD}`,
+							border: `5px solid ${WHITE}`,
 						}}
 					/>
 				))}
@@ -239,7 +266,7 @@ const VipScene: React.FC = () => {
 						fontWeight: 800,
 						fontSize: 40,
 						letterSpacing: 18,
-						color: GOLD,
+						color: RED,
 					}}
 				>
 					★ ★ ★
@@ -249,8 +276,8 @@ const VipScene: React.FC = () => {
 						fontFamily: anton,
 						fontSize: 230,
 						lineHeight: 1,
-						color: GOLD,
-						textShadow: neon(GOLD, 0.5),
+						color: WHITE,
+						textShadow: neon(SKY_BRIGHT, 0.5),
 					}}
 				>
 					PASE VIP
@@ -290,11 +317,11 @@ const Lock: React.FC<{open: number}> = ({open}) => (
 		<path
 			d="M60 150 V95 a70 70 0 0 1 140 0 V150"
 			fill="none"
-			stroke={CYAN}
+			stroke={SKY_BRIGHT}
 			strokeWidth={26}
 			strokeLinecap="round"
 			transform={`translate(0 ${-open * 55}) rotate(${-open * 18} 60 150)`}
-			style={{filter: `drop-shadow(0 0 14px ${CYAN})`}}
+			style={{filter: `drop-shadow(0 0 14px ${SKY_BRIGHT})`}}
 		/>
 		<rect
 			x={20}
@@ -302,8 +329,8 @@ const Lock: React.FC<{open: number}> = ({open}) => (
 			width={220}
 			height={160}
 			rx={30}
-			fill={CYAN}
-			style={{filter: `drop-shadow(0 0 20px ${CYAN})`}}
+			fill={SKY_BRIGHT}
+			style={{filter: `drop-shadow(0 0 20px ${SKY_BRIGHT})`}}
 		/>
 		<circle cx={130} cy={215} r={22} fill={BG} />
 		<rect x={120} y={225} width={20} height={45} rx={8} fill={BG} />
@@ -335,7 +362,7 @@ const EarlyAccessScene: React.FC = () => {
 						width: 600,
 						height: 600,
 						borderRadius: 300,
-						border: `6px solid ${MAGENTA}`,
+						border: `6px solid ${RED}`,
 						transform: `scale(${burst * 1.4})`,
 						opacity: 1 - burst,
 					}}
@@ -344,7 +371,7 @@ const EarlyAccessScene: React.FC = () => {
 			</div>
 			{[
 				{text: 'ACCESO', s: word1, color: 'white'},
-				{text: 'ANTICIPADO', s: word2, color: MAGENTA},
+				{text: 'ANTICIPADO', s: word2, color: SKY_BRIGHT},
 			].map(({text, s, color}) => (
 				<div
 					key={text}
@@ -353,7 +380,7 @@ const EarlyAccessScene: React.FC = () => {
 						fontSize: text === 'ACCESO' ? 210 : 170,
 						lineHeight: 1.05,
 						color,
-						textShadow: neon(color === 'white' ? MAGENTA : color, 0.35),
+						textShadow: neon(color === 'white' ? SKY : color, 0.35),
 						opacity: s,
 						transform: `translateX(${interpolate(s, [0, 1], [text === 'ACCESO' ? -700 : 700, 0])}px)`,
 					}}
@@ -365,13 +392,13 @@ const EarlyAccessScene: React.FC = () => {
 				style={{
 					marginTop: 40,
 					padding: '18px 44px',
-					border: `3px solid ${CYAN}`,
+					border: `3px solid ${SKY_BRIGHT}`,
 					borderRadius: 60,
 					fontFamily: montserrat,
 					fontWeight: 800,
 					fontSize: 42,
 					letterSpacing: 4,
-					color: CYAN,
+					color: SKY_BRIGHT,
 					opacity: tag,
 					transform: `scale(${interpolate(tag, [0, 1], [0.8, 1])})`,
 				}}
@@ -419,8 +446,8 @@ const DiscountScene: React.FC = () => {
 					fontWeight: 900,
 					fontSize: 70,
 					letterSpacing: 6,
-					color: CYAN,
-					textShadow: neon(CYAN, 0.4),
+					color: SKY_BRIGHT,
+					textShadow: neon(SKY_BRIGHT, 0.4),
 					opacity: top,
 				}}
 			>
@@ -449,8 +476,8 @@ const DiscountScene: React.FC = () => {
 						fontFamily: anton,
 						fontSize: 440,
 						lineHeight: 0.95,
-						color: GOLD,
-						textShadow: neon(MAGENTA, 0.9),
+						color: WHITE,
+						textShadow: neon(RED, 0.9),
 					}}
 				>
 					{count}
@@ -460,8 +487,8 @@ const DiscountScene: React.FC = () => {
 						fontFamily: anton,
 						fontSize: 220,
 						lineHeight: 1.1,
-						color: GOLD,
-						textShadow: neon(MAGENTA, 0.9),
+						color: WHITE,
+						textShadow: neon(RED, 0.9),
 					}}
 				>
 					%
@@ -470,10 +497,10 @@ const DiscountScene: React.FC = () => {
 			<div
 				style={{
 					marginTop: 10,
-					backgroundColor: MAGENTA,
+					backgroundColor: RED,
 					padding: '10px 50px',
 					transform: `skewX(-12deg) scaleX(${bottom})`,
-					boxShadow: neon(MAGENTA, 0.6),
+					boxShadow: neon(RED, 0.6),
 				}}
 			>
 				<span
@@ -503,6 +530,10 @@ const CtaScene: React.FC = () => {
 
 	return (
 		<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+			<LogoCard
+				width={620}
+				style={{marginBottom: 110, opacity: enter, transform: `scale(${enter})`}}
+			/>
 			<div
 				style={{
 					fontFamily: montserrat,
@@ -520,8 +551,9 @@ const CtaScene: React.FC = () => {
 					marginTop: 30,
 					padding: '40px 70px',
 					borderRadius: 30,
-					background: `linear-gradient(90deg, ${MAGENTA}, #8A2BFF, ${CYAN})`,
-					boxShadow: neon(MAGENTA, 0.8),
+					background: `linear-gradient(90deg, ${DEEP}, ${SKY})`,
+					boxShadow: neon(SKY_BRIGHT, 0.8),
+					border: `4px solid ${WHITE}`,
 					transform: `scale(${url * pulse})`,
 				}}
 			>
@@ -540,7 +572,7 @@ const CtaScene: React.FC = () => {
 								fontWeight: 900,
 								fontSize: 52,
 								letterSpacing: 6,
-								color: i === 1 ? GOLD : i === 2 ? CYAN : MAGENTA,
+								color: i === 1 ? WHITE : i === 2 ? SKY_BRIGHT : RED,
 								textAlign: 'center',
 								opacity: s,
 								transform: `translateY(${interpolate(s, [0, 1], [50, 0])}px)`,
